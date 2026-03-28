@@ -1,0 +1,1 @@
+{"name":"Local: testing","url":"e:\\CP\\range_queries\\testing.cpp","tests":[{"id":1773997798577,"input":"6 5\n2 3 1 1 5 3\n3 3 5\n1 2 4 2\n3 3 5\n2 2 4 5\n3 3 5\n","output":"7\n11\n15\n"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"e:\\CP\\range_queries\\testing.cpp","group":"local","local":true}

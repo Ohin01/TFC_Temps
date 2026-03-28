@@ -1,0 +1,37 @@
+Stars and Bars
+
+Stars and bars is a mathematical technique for solving certain combinatorial problems. It occurs whenever you want to count the number of ways to group identical objects.
+
+Theorem
+The number of ways to put n identical objects into k labeled boxes is:
+C(n + k - 1, n) or (n + k - 1)! / (n! * (k - 1)!)
+
+The proof involves turning the objects into stars and separating the boxes using bars. For example, we can represent with ★ | ★ ★ | | ★ ★ the following situation: in the first box is one object, in the second box are two objects, the third one is empty and in the last box are two objects. This is one way of dividing 5 objects into 4 boxes.
+
+Every partition can be represented using n stars and k - 1 bars, and every stars and bars permutation represents one partition. Therefore, the number of ways to divide n identical objects into k labeled boxes is the same as the number of permutations of n stars and k - 1 bars.
+
+Number of non-negative integer sums
+This problem is a direct application of the theorem. You want to count the number of solutions to the equation:
+x_1 + x_2 + ... + x_k = n
+with x_i ≥ 0.
+
+As shown above, the solution is C(n + k - 1, n).
+
+Number of positive integer sums
+Consider solutions to:
+x_1 + x_2 + ... + x_k = n
+with x_i ≥ 1.
+
+In this case, we have n stars, but we can put at most one bar between stars (since two bars together would imply x_i = 0). There are n - 1 gaps between the stars to place k - 1 bars.
+The solution is: C(n - 1, k - 1).
+
+Number of lower-bound integer sums
+This can be extended to cases where each variable has a specific lower bound:
+x_1 + x_2 + ... + x_k = n
+with x_i ≥ a_i.
+
+By substituting x_i' = x_i - a_i, we get:
+(x_1' + a_1) + (x_2' + a_2) + ... + (x_k' + a_k) = n
+x_1' + x_2' + ... + x_k' = n - (a_1 + a_2 + ... + a_k)
+where x_i' ≥ 0.
+This reduces the problem back to the non-negative integer sum case.

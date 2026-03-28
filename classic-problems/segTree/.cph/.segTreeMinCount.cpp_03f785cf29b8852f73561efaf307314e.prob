@@ -1,0 +1,1 @@
+{"name":"Local: segTreeMinCount","url":"e:\\CP\\segTree\\segTreeMinCount.cpp","tests":[{"id":1759035794179,"input":"5 5\n3 4 3 5 2\n2 0 3\n1 1 2\n2 0 3\n1 0 2\n2 0 5\n","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"e:\\CP\\segTree\\segTreeMinCount.cpp","group":"local","local":true}

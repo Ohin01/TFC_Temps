@@ -1,0 +1,248 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+
+template<typename dataType>
+using ordered_set = tree<dataType, null_type, less<dataType>, rb_tree_tag, tree_order_statistics_node_update>;
+template<typename dataType1, typename dataType2>
+using ordered_map = tree<dataType1, dataType2, less<dataType1>, rb_tree_tag, tree_order_statistics_node_update>;
+template<typename dataType>
+using ordered_multiset = tree<dataType, null_type, less_equal<dataType>, rb_tree_tag, tree_order_statistics_node_update>;
+
+struct custom_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM =
+            chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);
+    }
+
+    template<typename T, typename U>
+    size_t operator()(const pair<T, U>& x) const {
+        static const uint64_t FIXED_RANDOM =
+            chrono::steady_clock::now().time_since_epoch().count();
+
+        uint64_t h1 = splitmix64((uint64_t)x.first + FIXED_RANDOM);
+        uint64_t h2 = splitmix64((uint64_t)x.second + FIXED_RANDOM);
+
+        return h1 ^ (h2 >> 1);
+    }
+};
+
+typedef long long       ll;
+typedef long double     ld;
+typedef vector<int>     vi;
+typedef vector<vi>      vvi;
+typedef vector<ll>      vll;
+typedef vector<vll>     vvll;
+typedef vector<bool>    vb;
+typedef vector<vb>      vvb;
+typedef pair<int, int>  pi;
+typedef vector<pi>      vpi;
+typedef pair<ll, ll>    pll;
+typedef vector<pll>     vpll;
+
+#define pb              push_back
+#define ff              first
+#define ss              second
+#define index           find_by_order
+#define FOR(i, a, b)    for(ll i = (a); i < (b); i++)
+#define FORR(i, a, b)    for(ll i = (a); i >= (b); i--)
+#define YES             cout << "YES\n"
+#define NO              cout << "NO\n"
+#define lcm(a, b)       ((a / __gcd(a, b)) * b)
+
+const ll MOD = 1e9 + 7;//998244353;
+const ll INF = 9e18;
+const int MAX = 2e5 + 5;
+const int MX = 1e6 + 5;
+const int LOGN = 20;
+const ld PI = acos((ld) -1);
+
+ll fact[MX];
+ll inv[MX];
+vpll mv = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+
+ll Bigmod(ll a, ll b, ll m){
+    if(b == 0) return 1 % m;
+    ll x = Bigmod(a, b / 2LL, m);
+    x = (x * x) % m;
+    if(b % 2 == 1) x = (x * a) % m;
+    return x;
+}
+
+void pre(){
+    fact[0]=1;
+    inv[0]=1;
+    FOR(i, 1, MX){
+        fact[i] = (i * fact[i - 1])% MOD;
+        inv[i] = Bigmod(fact[i], MOD - 2LL, MOD);
+    }
+}
+
+ll nCr(ll n, ll r, ll p) { 
+    if(r > n || r < 0) return 0;
+    if(n == r || r == 0) return 1;
+    return (((fact[n] * inv[r]) % p ) * inv[n - r]) % p;
+}
+
+struct Mobius 
+{
+    vi mu;
+    vi min_prime;
+    vi cnt;
+    ll coprime;
+
+    Mobius(int limit = MAX) 
+    {
+        mu.resize(limit + 1);
+        min_prime.resize(limit + 1, 0);
+        cnt.resize(limit + 1, 0);
+        coprime = 0;
+
+        mu[1] = 1;
+        vi primes;
+        for (int i = 2; i <= limit; ++i) 
+        {
+            if (min_prime[i] == 0) 
+            {
+                min_prime[i] = i;
+                primes.push_back(i);
+                mu[i] = -1;
+            }
+            for (int p : primes) 
+            {
+                if (p > min_prime[i] || (ll)i * p > limit) break;
+                min_prime[i * p] = p;
+
+                if (min_prime[i] == p) mu[i * p] = 0;
+                else mu[i * p] = -mu[i];
+            }
+        }
+    }
+
+    template<typename Func>
+    void for_each_divisor(int x, Func callback) 
+    {
+        static vector<pair<int, int>> prime_factors;
+        prime_factors.clear();
+        int temp = x;
+        while (temp > 1) {
+            int p = min_prime[temp];
+            int count = 0;
+            while (temp % p == 0) { temp /= p; count++; }
+            prime_factors.push_back({p, count});
+        }
+
+        auto dfs = [&](auto&& self, int idx, int current_divisor) -> void {
+            if (idx == prime_factors.size()) {
+                callback(current_divisor);
+                return;
+            }
+            int p = prime_factors[idx].first;
+            int exponent = prime_factors[idx].second;
+            int p_pow = 1;
+            for (int i = 0; i <= exponent; ++i) {
+                self(self, idx + 1, current_divisor * p_pow);
+                p_pow *= p;
+            }
+        };
+        dfs(dfs, 0, 1);
+    }
+
+    void add(int x) 
+    {
+        if (x >= cnt.size()) return;
+        for_each_divisor(x, [&](int d) {
+            if (mu[d] == 0) return;
+            coprime += (ll)mu[d] * cnt[d];
+            cnt[d]++;
+        });
+    }
+
+    void remove(int x) 
+    {
+        if (x >= cnt.size()) return;
+        for_each_divisor(x, [&](int d) {
+            if (mu[d] == 0) return;
+            cnt[d]--;
+            coprime -= (ll)mu[d] * cnt[d];
+        });
+    }
+
+    void build(const vll& nums) 
+    {
+        fill(cnt.begin(), cnt.end(), 0);
+        coprime = 0;
+        vi f(MAX, 0);
+        for (int x : nums) {
+            if (x < MAX) f[x]++;
+        }
+        for (int i = 1; i < MAX; ++i) {
+            for (int j = i; j < MAX; j += i) {
+                cnt[i] += f[j];
+            }
+        }
+        for (int i = 1; i < MAX; ++i) {
+            if (mu[i] == 0) continue;
+            ll pairs = (ll) ((Bigmod(2LL, cnt[i], MOD) - 1) % MOD);
+            pairs %= MOD;
+            if (mu[i] == 1) coprime += pairs;
+            else coprime = (coprime - pairs + MOD);
+
+            coprime %= MOD;
+        }
+    }
+
+    ll get_coprime_pairs() const {
+        return coprime;
+    }
+
+    ll get_pairs_with_gcd(int g) {
+        ll ans = 0;
+        for (int i = g; i < cnt.size(); i += g) {
+            ans += (ll)mu[i / g] * ((ll)cnt[i] * (cnt[i] - 1) / 2);
+        }
+        return ans;
+    }
+};
+
+void solve()
+{
+    ll n;
+    cin >> n;
+
+    vll a(n);
+
+    FOR(i, 0, n) cin >> a[i];
+
+    Mobius mb;
+    mb.build(a);
+
+    cout << mb.coprime << endl;
+}
+
+int main(void)
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    
+    int cases = 1;
+    //cin >> cases;
+
+    for (int i = 1; i <= cases; i++)
+    {
+        //cout << "Case " << i << ": ";
+        solve();
+    }
+}
